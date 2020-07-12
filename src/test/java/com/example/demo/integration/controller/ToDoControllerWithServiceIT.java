@@ -40,7 +40,7 @@ class ToDoControllerWithServiceIT {
 		String testText = "My to do text";
 		when(toDoRepository.findAll()).thenReturn(
 			Arrays.asList(
-				new ToDoEntity(1l, testText)
+				new ToDoEntity(1L, testText)
 			)
 		);
 		

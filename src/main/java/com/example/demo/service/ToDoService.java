@@ -11,11 +11,12 @@ import com.example.demo.dto.mapper.ToDoEntityToResponseMapper;
 import com.example.demo.exception.ToDoNotFoundException;
 import com.example.demo.model.ToDoEntity;
 import com.example.demo.repository.ToDoRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ToDoService {
 	
-	private ToDoRepository toDoRepository;
+	private final ToDoRepository toDoRepository;
 
 	public ToDoService(ToDoRepository toDoRepository) {
 		this.toDoRepository = toDoRepository;
@@ -23,7 +24,7 @@ public class ToDoService {
 	
 	public List<ToDoResponse> getAll() {
 		return toDoRepository.findAll().stream()
-			.map(i -> ToDoEntityToResponseMapper.map(i))
+			.map(ToDoEntityToResponseMapper::map)
 			.collect(Collectors.toList()); 
 	}
 
@@ -49,6 +50,16 @@ public class ToDoService {
 		return  ToDoEntityToResponseMapper.map(
 			toDoRepository.findById(id).orElseThrow(() -> new ToDoNotFoundException(id))
 		);
+	}
+
+	public String getTextById(Long id) throws ToDoNotFoundException {
+		ToDoEntity todo = toDoRepository.findById(id).orElseThrow(() -> new ToDoNotFoundException(id));
+		return todo.getText();
+	}
+
+	public String getTimeById(Long id) throws ToDoNotFoundException {
+		ToDoEntity todo = toDoRepository.findById(id).orElseThrow(() -> new ToDoNotFoundException(id));
+		return todo.getCompletedAt().toString();
 	}
 
 	public void deleteOne(Long id) {

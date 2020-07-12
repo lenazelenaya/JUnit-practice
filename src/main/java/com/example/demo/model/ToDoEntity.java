@@ -67,6 +67,7 @@ public class ToDoEntity {
 	public ZonedDateTime getCompletedAt() {
 		return completedAt;
 	}
+
 	public ToDoEntity completeNow() {
 		completedAt = ZonedDateTime.now(ZoneOffset.UTC);
 		return this;
