@@ -294,4 +294,13 @@ class ToDoServiceTest {
 		assertNull(todo.completedAt);
 	}
 
+	@Test
+	void whenUpsertIncorrectId_thenToDoNotFoundException() {
+		var incorrectId = 321L;
+		var entity = new ToDoSaveRequest();
+		entity.id = incorrectId;
+
+		assertThrows(ToDoNotFoundException.class, () -> toDoService.upsert(entity));
+	}
+
 }
