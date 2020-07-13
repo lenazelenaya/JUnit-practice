@@ -1,2 +1,11 @@
 GET http://localhost:8080/todos/45
 Content-Type: application/json
+###
+
+POST http://localhost:8080/todos
+Content-Type: application/json
+
+{
+  "id" : "1L",
+  "text" : "testText"
+}

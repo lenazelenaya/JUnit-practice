@@ -15,8 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,15 +54,5 @@ class ToDoControllerTest {
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(saveRequest)))
                 .andExpect(status().isOk());
-    }
-
-    //Verifying Input Validation
-    @Test
-    void whenNullValue_thenReturns400() throws Exception {
-        var saveRequest = new ToDoSaveRequest(null, null);
-        mockMvc.perform(post("/todos")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(saveRequest)))
-                .andExpect(status().isBadRequest());
     }
 }

@@ -51,12 +51,12 @@ public class ToDoController {
 
 	@DeleteMapping("/todos/{id}")
 	void delete(@PathVariable Long id) {
-		try {
-			if (id == null) throw new NoArgsException();
-			toDoService.deleteOne(id);
-		}catch(NoArgsException ex){
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todooo-do", ex);
-		}
+		toDoService.deleteOne(id);
+	}
+
+	@GetMapping("/todos/{id}/text")
+	@Valid String getText(@PathVariable Long id) throws ToDoNotFoundException, NoArgsException {
+		return toDoService.getTextById(id);
 	}
 
 }
