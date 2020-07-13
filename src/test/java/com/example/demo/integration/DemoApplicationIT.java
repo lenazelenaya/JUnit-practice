@@ -59,7 +59,7 @@ class DemoApplicationIT {
 	}
 
 	@Test
-	public void saveEntityWithNullId() throws Exception{
+	public void whenSaveEntityWithNullId() throws Exception{
 		//arange
 		var text = "Test text";
 		var newEntity = ToDoEntityToRequestMapper.map(new ToDoEntity(null, text));
@@ -112,5 +112,12 @@ class DemoApplicationIT {
 		entity.id = incorrectId;
 
 		assertThrows(ToDoNotFoundException.class, () -> toDoService.upsert(entity));
+	}
+
+	@Test
+	void whenGetIncorrectId_thenThrowException() throws Exception {
+		this.mockMvc.perform(get("/todos/{id}", 42L))
+				.andExpect(status().isNotFound())
+				.andExpect(content().string("Can not find todo with id 42"));
 	}
 }
