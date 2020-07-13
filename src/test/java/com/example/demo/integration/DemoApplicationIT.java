@@ -2,8 +2,12 @@ package com.example.demo.integration;
 
 import com.example.demo.controller.ToDoController;
 
+import com.example.demo.dto.ToDoSaveRequest;
 import com.example.demo.dto.mapper.ToDoEntityToRequestMapper;
+import com.example.demo.exception.ToDoNotFoundException;
 import com.example.demo.model.ToDoEntity;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import com.example.demo.service.ToDoService;
 import org.junit.jupiter.api.Test;
@@ -99,5 +103,14 @@ class DemoApplicationIT {
 				.andExpect(jsonPath("$.text").value(text))
 				.andExpect(jsonPath("$.id").value(id))
 				.andExpect(jsonPath("$.completedAt").exists());
+	}
+
+	@Test
+	void whenUpsertIncorrectId_thenToDoNotFoundException() {
+		var incorrectId = 321L;
+		var entity = new ToDoSaveRequest();
+		entity.id = incorrectId;
+
+		assertThrows(ToDoNotFoundException.class, () -> toDoService.upsert(entity));
 	}
 }
