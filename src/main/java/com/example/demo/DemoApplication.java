@@ -24,6 +24,7 @@ public class DemoApplication {
 			repository.save(
 				new ToDoEntity("Learn to test Java app").completeNow()
 			);
+			repository.save(new ToDoEntity( "Test text"));
 		};
 	}
 }

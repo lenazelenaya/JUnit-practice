@@ -68,9 +68,10 @@ class ToDoControllerIT {
 	void whenSave_thenReturnValidResponse() throws Exception {
 		String testText = "My to do text";
 		Long testId = 1L;
-		var newEntity = new ToDoEntity(testId, testText);
+		var newEntity = new ToDoEntity(testText);
+		var tempEntity = new ToDoEntity(testId, testText);
 		var newRequest = ToDoEntityToRequestMapper.map(newEntity);
-		var newResponse = ToDoEntityToResponseMapper.map(newEntity);
+		var newResponse = ToDoEntityToResponseMapper.map(tempEntity);
 
 		when(toDoService.upsert(ArgumentMatchers.any(ToDoSaveRequest.class)))
 				.thenReturn(newResponse);

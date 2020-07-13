@@ -1,4 +1,4 @@
-GET http://localhost:8080/todos/45
+GET http://localhost:8080/todos
 Content-Type: application/json
 ###
 
