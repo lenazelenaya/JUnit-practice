@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.*;
 
 import static org.mockito.Mockito.*;
 //import static org.mockito.AdditionalAnswers.*;
+import com.example.demo.exception.NoArgsException;
 import com.example.demo.service.ToDoService;
 import org.mockito.ArgumentMatchers;
 
@@ -126,7 +127,7 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenComplete_thenReturnWithCompletedAt() throws ToDoNotFoundException {
+	void whenComplete_thenReturnWithCompletedAt() throws ToDoNotFoundException, NoArgsException {
 		var startTime = ZonedDateTime.now(ZoneOffset.UTC);
 		//mock
 		var todo = new ToDoEntity(0l, "Test 1");
@@ -151,7 +152,7 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenGetOne_thenReturnCorrectOne() throws ToDoNotFoundException {
+	void whenGetOne_thenReturnCorrectOne() throws ToDoNotFoundException, NoArgsException {
 		//mock
 		var todo = new ToDoEntity(0l, "Test 1");
 		when(toDoRepository.findById(anyLong())).thenReturn(Optional.of(todo));

@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.ControllerExceptionHandler;
+import com.example.demo.exception.NoArgsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,7 @@ import com.example.demo.exception.ToDoNotFoundException;
 import com.example.demo.service.ToDoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class ToDoController {
@@ -37,18 +40,23 @@ public class ToDoController {
 	}
 
 	@PutMapping("/todos/{id}/complete")
-	@Valid ToDoResponse save(@PathVariable Long id) throws ToDoNotFoundException {
+	@Valid ToDoResponse save(@PathVariable Long id) throws ToDoNotFoundException, NoArgsException {
 		return toDoService.completeToDo(id);
 	}
 
 	@GetMapping("/todos/{id}")
-	@Valid ToDoResponse getOne(@PathVariable Long id) throws ToDoNotFoundException {
-		return toDoService.getOne(id);
+	@Valid ToDoResponse getOne(@PathVariable Long id) throws ToDoNotFoundException, NoArgsException {
+			return toDoService.getOne(id);
 	}
 
 	@DeleteMapping("/todos/{id}")
 	void delete(@PathVariable Long id) {
-		toDoService.deleteOne(id);
+		try {
+			if (id == null) throw new NoArgsException();
+			toDoService.deleteOne(id);
+		}catch(NoArgsException ex){
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todooo-do", ex);
+		}
 	}
 
 }

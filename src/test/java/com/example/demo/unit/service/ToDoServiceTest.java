@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.*;
 
 import static org.mockito.Mockito.*;
 //import static org.mockito.AdditionalAnswers.*;
+import com.example.demo.exception.NoArgsException;
 import com.example.demo.service.ToDoService;
 import org.mockito.ArgumentMatchers;
 
@@ -126,7 +127,7 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenComplete_thenReturnWithCompletedAt() throws ToDoNotFoundException {
+	void whenComplete_thenReturnWithCompletedAt() throws ToDoNotFoundException, NoArgsException {
 		var startTime = ZonedDateTime.now(ZoneOffset.UTC);
 		//mock
 		var todo = new ToDoEntity(0L, "Test 1");
@@ -151,7 +152,7 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenGetOne_thenReturnCorrectOne() throws ToDoNotFoundException {
+	void whenGetOne_thenReturnCorrectOne() throws ToDoNotFoundException, NoArgsException {
 		//mock
 		var todo = new ToDoEntity(0L, "Test 1");
 		when(toDoRepository.findById(anyLong())).thenReturn(Optional.of(todo));
@@ -184,7 +185,14 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenGetTextById_thenReturnCorrectOne() throws ToDoNotFoundException {
+	void whenIdNull_thenNoArgsException(){
+		assertThrows(NoArgsException.class, () -> toDoService.getTextById(null));
+		assertThrows(NoArgsException.class, () -> toDoService.getOne(null));
+	}
+
+	@Test
+	void whenGetTextById_thenReturnCorrectOne() throws ToDoNotFoundException, NoArgsException {
+		//mock
 		var todo = new ToDoEntity(0L, "Test 1");
 		when(toDoRepository.findById(anyLong())).thenReturn(Optional.of(todo));
 
@@ -196,15 +204,94 @@ class ToDoServiceTest {
 	}
 
 	@Test
-	void whenGetTimeById_thenReturnCorrectOne() throws ToDoNotFoundException {
+	void whenGetTimeById_thenReturnCorrectOne() throws ToDoNotFoundException, NoArgsException {
+		//mock
 		var todo = new ToDoEntity(0L, "Test 1");
-		when(toDoRepository.findById(anyLong())).thenReturn(Optional.of(todo));
-
+		todo.completeNow();
+		when(toDoRepository.findById(anyLong())).thenAnswer(i -> {
+			Long id = i.getArgument(0, Long.class);
+			if (id.equals(todo.getId())) {
+				return Optional.of(todo);
+			} else {
+				return Optional.empty();
+			}
+		});
 		//call
 		var result = toDoService.getTimeById(0L);
 
 		//validate
 		assertEquals(result, todo.getCompletedAt().toString());
+	}
+
+	@Test
+	void whenSaveToDo_thenItHasTheText() throws ToDoNotFoundException {
+		//mock
+		var expectedToDo = new ToDoEntity(0L, "Text for test");
+		when(toDoRepository.findById(anyLong())).thenAnswer(i -> {
+			Long id = i.getArgument(0, Long.class);
+			if (id.equals(expectedToDo.getId())) {
+				return Optional.of(expectedToDo);
+			} else {
+				return Optional.empty();
+			}
+		});
+		when(toDoRepository.save(ArgumentMatchers.any(ToDoEntity.class))).thenAnswer(i -> {
+			ToDoEntity arg = i.getArgument(0, ToDoEntity.class);
+			Long id = arg.getId();
+			if (id != null) {
+				if (!id.equals(expectedToDo.getId()))
+					return new ToDoEntity(id, arg.getText());
+				expectedToDo.setText(arg.getText());
+				return expectedToDo;
+			} else {
+				return new ToDoEntity(40158L, arg.getText());
+			}
+		});
+
+		//call
+		var toDoSaveRequest = new ToDoSaveRequest();
+		toDoSaveRequest.id = expectedToDo.getId();
+		toDoSaveRequest.text = "Text for test";
+		var todo = toDoService.upsert(toDoSaveRequest);
+
+		//validate
+		assertNotNull(todo.text);
+		assertEquals(expectedToDo.getText(), todo.text);
+	}
+
+	@Test
+	void whenSaveToDo_thenItHasNoTime() throws ToDoNotFoundException {
+		//mock
+		var expectedToDo = new ToDoEntity(0L, "Text for test");
+		when(toDoRepository.findById(anyLong())).thenAnswer(i -> {
+			Long id = i.getArgument(0, Long.class);
+			if (id.equals(expectedToDo.getId())) {
+				return Optional.of(expectedToDo);
+			} else {
+				return Optional.empty();
+			}
+		});
+		when(toDoRepository.save(ArgumentMatchers.any(ToDoEntity.class))).thenAnswer(i -> {
+			ToDoEntity arg = i.getArgument(0, ToDoEntity.class);
+			Long id = arg.getId();
+			if (id != null) {
+				if (!id.equals(expectedToDo.getId()))
+					return new ToDoEntity(id, arg.getText());
+				expectedToDo.setText(arg.getText());
+				return expectedToDo;
+			} else {
+				return new ToDoEntity(40158L, arg.getText());
+			}
+		});
+
+		//call
+		var toDoSaveRequest = new ToDoSaveRequest();
+		toDoSaveRequest.id = expectedToDo.getId();
+		toDoSaveRequest.text = "Updated Item";
+		var todo = toDoService.upsert(toDoSaveRequest);
+
+		//validate
+		assertNull(todo.completedAt);
 	}
 
 }
