@@ -7,9 +7,13 @@ import com.example.demo.dto.mapper.ToDoEntityToRequestMapper;
 import com.example.demo.exception.ToDoNotFoundException;
 import com.example.demo.model.ToDoEntity;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
+import com.example.demo.repository.ToDoRepository;
 import com.example.demo.service.ToDoService;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +36,8 @@ class DemoApplicationIT {
 	private ToDoController toDoController;
 	@Autowired
 	private ToDoService toDoService;
+	@Autowired
+	private ToDoRepository toDoRepository;
 
 	@Test
 	void contextLoads() throws Exception {
@@ -59,7 +65,16 @@ class DemoApplicationIT {
 	}
 
 	@Test
-	public void whenSaveEntityWithNullId() throws Exception{
+	void whenGetAll_thenGetValidResponse() throws Exception {
+		mockMvc.perform(get("/todos"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$", hasSize(3)));
+	}
+
+	@Test
+	public void saveEntityWithNullId() throws Exception{
 		//arange
 		var text = "Test text";
 		var newEntity = ToDoEntityToRequestMapper.map(new ToDoEntity(null, text));
@@ -69,6 +84,7 @@ class DemoApplicationIT {
 
 		//assert
 		assertThat(result != null);
+		assertThat(result.id != null);
 		assertThat(result.text.equals(text));
 	}
 
